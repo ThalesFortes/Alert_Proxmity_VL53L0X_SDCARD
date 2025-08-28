@@ -50,7 +50,7 @@ Este projeto implementa um **sistema embarcado** utilizando o **Raspberry Pi Pic
 - **OLED SSD1306 (I²C, 128x64)**  
 - **LEDs RGB** (ou individuais)  
 - **Cartão SD com módulo SPI**  
-- Botões, resistores e jumpers.
+- Botões
 
 ---
 
@@ -74,12 +74,14 @@ Este projeto implementa um **sistema embarcado** utilizando o **Raspberry Pi Pic
 
 ## 🛠️ Como Compilar e Executar
 
-1. Configure o **SDK do Raspberry Pi Pico** e **CMake**.
-2. Compile o projeto:
+1. git clone https://github.com/ThalesFortes/Alert_Proxmity_VL53L0X_SDCARD.git
+2. Configure o **SDK do Raspberry Pi Pico** e **CMake**.
+3. Compile o projeto:
    ```bash
    mkdir build && cd build
    cmake ..
    make
+
 Grave o .uf2 no Raspberry Pi Pico W.
 
 Abra o terminal serial para visualizar os logs das medições.
