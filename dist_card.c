@@ -39,24 +39,20 @@
 
 FATFS fs;  // estrutura do FatFs
 
-// ----------------------------------------------------
-// Inicialização dos botões
-// ----------------------------------------------------
+
 void inicializar_botao_hist() {
     gpio_init(BUTTON_PIN_HIST);
-    gpio_set_dir(BUTTON_PIN_HIST, false); // entrada
-    gpio_pull_up(BUTTON_PIN_HIST);        // pull-up
+    gpio_set_dir(BUTTON_PIN_HIST, false); 
+    gpio_pull_up(BUTTON_PIN_HIST);        
 }
 
 void inicializar_botao_stop() {
     gpio_init(BUTTON_PIN_STOP);
-    gpio_set_dir(BUTTON_PIN_STOP, false); // entrada
-    gpio_pull_up(BUTTON_PIN_STOP);        // pull-up
+    gpio_set_dir(BUTTON_PIN_STOP, false); 
+    gpio_pull_up(BUTTON_PIN_STOP);        
 }
 
-// ----------------------------------------------------
-// Inicialização do SD Card
-// ----------------------------------------------------
+
 void inicializar_sd() {
     spi_init(SPI_PORT, 1000 * 1000);
     gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
@@ -74,9 +70,7 @@ void inicializar_sd() {
     }
 }
 
-// ----------------------------------------------------
-// Registro de distância no arquivo do SD
-// ----------------------------------------------------
+
 void registrar_distancia(uint16_t distancia_mm, const char* estado, uint64_t tempo_ms) {
     FIL arquivo;
     char linha[100], valor_str[16], unidade[4];
@@ -107,9 +101,7 @@ void registrar_distancia(uint16_t distancia_mm, const char* estado, uint64_t tem
     }
 }
 
-// ----------------------------------------------------
-// Mostrar arquivo do SD com scroll e botão de parada
-// ----------------------------------------------------
+
 void mostrar_arquivo_sd() {
     FIL arquivo;
     FRESULT fr = f_open(&arquivo, "distancia.txt", FA_READ);
@@ -123,17 +115,17 @@ void mostrar_arquivo_sd() {
     }
 
     char linha[128];
-    char buffer[6][128]; // 6 linhas para scroll
+    char buffer[6][128]; 
     int count = 0;
 
     ssd1306_Fill(Black);
     ssd1306_UpdateScreen();
 
     while (f_gets(linha, sizeof(linha), &arquivo)) {
-        // Se botão de parada pressionado, interrompe a leitura
+        
         if (!gpio_get(BUTTON_PIN_STOP)) break;
 
-        printf("%s", linha); // imprime no console
+        printf("%s", linha); 
 
         // Move buffer para cima
         if (count < 6) {
@@ -156,18 +148,14 @@ void mostrar_arquivo_sd() {
     f_close(&arquivo);
 }
 
-// ----------------------------------------------------
-// OLED título
-// ----------------------------------------------------
+
 static void draw_oled_header(void) {
     ssd1306_Fill(Black);
     ssd1306_SetCursor(0, 0);
     ssd1306_WriteString("Monitor Proximidade", Font_7x10, White);
 }
 
-// ----------------------------------------------------
-// MAIN
-// ----------------------------------------------------
+
 int main() {
     stdio_init_all();
 
@@ -187,8 +175,8 @@ int main() {
     leds_init();
 
     // Botões
-    inicializar_botao_hist(); // botão histórico
-    inicializar_botao_stop(); // botão parar
+    inicializar_botao_hist();
+    inicializar_botao_stop(); 
 
     // SD Card
     inicializar_sd();
@@ -215,18 +203,17 @@ int main() {
     bool botao_ativo = false;
 
     while (1) {
-        // --- Verifica botão de histórico com debounce ---
-        if (!gpio_get(BUTTON_PIN_HIST)) { // pressionado
+        if (!gpio_get(BUTTON_PIN_HIST)) { 
             if (!botao_ativo) {
                 botao_ativo = true;
-                mostrar_arquivo_sd(); // agora monitora botão de parada
+                mostrar_arquivo_sd(); 
             }
         } else {
             botao_ativo = false;
         }
 
         // --- Leitura do sensor ---
-        bool ok = vl53l0x_read_range_mm(I2C_PORT, &mm, 200); // timeout 200ms
+        bool ok = vl53l0x_read_range_mm(I2C_PORT, &mm, 200); 
 
         if (!ok) {
             draw_oled_header();
@@ -241,7 +228,7 @@ int main() {
             continue;
         }
 
-        if (mm < 50) mm = 3000; // fora de alcance
+        if (mm < 50) mm = 3000; 
 
         // --- Filtro de média ---
         buffer[idx++] = mm;
@@ -286,11 +273,11 @@ int main() {
 
         ssd1306_UpdateScreen();
 
-        // --- Registro no SD ---
+       
         uint64_t tempo_ms = to_ms_since_boot(get_absolute_time());
         registrar_distancia(media, estado, tempo_ms);
 
-        // --- Debug no console ---
+   
         printf("[%llu ms] %s - %u mm\n", tempo_ms, estado, media);
 
         sleep_ms(200);
